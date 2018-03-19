@@ -1,4 +1,9 @@
 class userDTO:
-    def __init__(self,value1,value2):
-        self.value1 = value1
-        self.value2 = value2
+    def __init__(self,name=None,surname=None,birthdate=None,gender=None,username=None,email=None,password=None):
+        self.firstname = name
+        self.lastname = surname
+        self.birthdate = birthdate
+        self.gender = gender
+        self.username = username
+        self.email = email
+        self.password = password

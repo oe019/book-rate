@@ -1,3 +1,16 @@
+#!/bin/bash
+##
+## prepares the database by providing username information
+##
+
+if  [ $# -eq 0 ];
+then
+    echo "please provide postgres username as a parameter";
+    echo "no other parameters supported";
+    exit 1;
+fi
+
+cat >> bookratedb.sql <<- "EOF"
 CREATE EXTENSION dblink;
 
 DO
@@ -205,9 +218,7 @@ INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (5, 7);
 INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (6, 8);
 INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (7, 9);
 
-
-
---procedures
+-- procedures
 
 CREATE OR REPLACE FUNCTION add_user(name       VARCHAR(100), surname VARCHAR(100), birthdate DATE,
                                     recorddate TIMESTAMP WITH TIME ZONE, genderid INT, userName VARCHAR(100),
@@ -235,3 +246,16 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
+
+EOF
+
+##uncomment following 2 lines if the postgresql is not installed on mac server
+#/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+#brew install postgresql
+
+psql postgres -f ./bookratedb.sql -U $1 $2
+
+##rm -r -f bookratedb.sql
+
+## mac server
+

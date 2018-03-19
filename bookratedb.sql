@@ -206,32 +206,3 @@ INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (6, 8);
 INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (7, 9);
 
 
-
---procedures
-
-CREATE OR REPLACE FUNCTION add_user(name       VARCHAR(100), surname VARCHAR(100), birthdate DATE,
-                                    recorddate TIMESTAMP WITH TIME ZONE, genderid INT, userName VARCHAR(100),
-                                    email      VARCHAR(100), pasword VARCHAR(100))
-  RETURNS INTEGER AS $$
-DECLARE
-  instertedPersonId    INTEGER;
-  insertedCredentialId INTEGER;
-BEGIN
-  INSERT INTO person.Persons(Name, Surname, BirthDate, RecordDate, GenderId)
-  VALUES (name, surname, birthdate, recorddate, genderid)
-  RETURNING Persons.Id
-    INTO instertedPersonId;
-
-  INSERT INTO person.Credentials(PersonId, RoleId, Email, UserName, Pass, IsUser)
-  VALUES (instertedPersonId,3, email, userName, pasword, 1)
-  RETURNING Credentials.Id
-    INTO insertedCredentialId;
-
-  INSERT INTO person.Users(PersonId, CredentialId,BadgeId) VALUES (instertedPersonId,insertedCredentialId,1);
-  INSERT INTO helper.PersonCredential(PersonId, CredentialId) VALUES (instertedPersonId,insertedCredentialId);
-
-  RETURN instertedPersonId;
-
-END;
-$$
-LANGUAGE plpgsql;

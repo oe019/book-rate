@@ -28,12 +28,28 @@ def login():
         user = request.args.get('username')
         user = request.args.get('pass')
 
-@app.route('/signup/',methods=['POST','GET'])
+
+@app.route('/signup/',methods=['POST'])
 def signup():
     if request.method == 'POST':
         print('ajax post geldi')
-    pass
+        dto = userDTO();
+        dto.firstname = request.form['_firstname']
+        dto.lastname = request.form['_lastname']
+        dto.gender = request.form['_gender']
+        dto.username = request.form['_username']
+        dto.email = request.form['_email']
+        dto.password = request.form['_password']
+        confirm = request.form['password_confirmation']
+        dto.birthdate = request.form['_bithdate']
+        if confirm != dto.password:
+            raise ValueError('Passwords do not match')
+            return "<h1>ERROR PASS DONOT MATCH<\h1>"
 
+
+
+        print(dto.birthdate)
+        print('asd')
 
 if __name__ == '__main__':
     app.run()
