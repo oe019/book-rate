@@ -20,7 +20,6 @@ def DTOcredential_credentialDB(cred)->credential:
     cr = credential()
     cr.username = cred.username
     cr.password = cred.password
-    cr.
 
 
 
