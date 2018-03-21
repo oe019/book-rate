@@ -7,3 +7,7 @@ class userDTO:
         self.username = username
         self.email = email
         self.password = password
+class credentialDTO:
+    def __init__(self,userinfo=None,password=None):
+        self.username = userinfo
+        self.password = password

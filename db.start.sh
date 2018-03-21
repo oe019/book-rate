@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS person.Persons (
 
 CREATE TABLE IF NOT EXISTS person.Credentials (
   Id       BIGSERIAL PRIMARY KEY,
-  PersonId INTEGER REFERENCES person.Persons (Id),
-  RoleId   INTEGER REFERENCES person.Roles (Id),
+  PersonId INTEGER REFERENCES person.Persons (Id) ON DELETE CASCADE ON UPDATE CASCADE,
+  RoleId   INTEGER REFERENCES person.Roles (Id) ,
   Email    VARCHAR(100)        NOT NULL UNIQUE,
   UserName VARCHAR(100) UNIQUE NOT NULL,
   Pass     VARCHAR(20)         NOT NULL,
@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS person.Credentials (
 
 CREATE TABLE IF NOT EXISTS person.Users (
   Id           BIGSERIAL PRIMARY KEY,
-  PersonId     INTEGER REFERENCES person.Persons (Id),
-  CredentialId INTEGER REFERENCES person.Credentials (Id),
+  PersonId     INTEGER REFERENCES person.Persons (Id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CredentialId INTEGER REFERENCES person.Credentials (Id) ON DELETE CASCADE ON UPDATE CASCADE,
   BadgeId INTEGER REFERENCES forum.Badges(Id)
   --rank etc badge
 );
@@ -130,8 +130,8 @@ CREATE TABLE IF NOT EXISTS helper.BookCategory (
 );
 
 CREATE TABLE IF NOT EXISTS helper.PersonCredential (
-  PersonId     INTEGER REFERENCES person.Persons (Id),
-  CredentialId INTEGER REFERENCES person.Credentials (Id),
+  PersonId     INTEGER REFERENCES person.Persons (Id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CredentialId INTEGER REFERENCES person.Credentials (Id)ON DELETE CASCADE ON UPDATE CASCADE,
 
   PRIMARY KEY (PersonId, CredentialId)
 );
@@ -218,23 +218,27 @@ INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (5, 7);
 INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (6, 8);
 INSERT INTO helper.PersonCredential (PersonId, CredentialId) VALUES (7, 9);
 
--- procedures
 
-CREATE OR REPLACE FUNCTION add_user(name       VARCHAR(100), surname VARCHAR(100), birthdate DATE,
-                                    recorddate TIMESTAMP WITH TIME ZONE, genderid INT, userName VARCHAR(100),
-                                    email      VARCHAR(100), pasword VARCHAR(100))
+CREATE SCHEMA IF NOT EXISTS util;
+CREATE SCHEMA IF NOT EXISTS test;
+
+--procedures
+
+CREATE OR REPLACE FUNCTION util.add_forumuser(name       text,surname text, birthdate DATE,
+                                    genderid INT, userName text,
+                                    email      text, pasword text, isUser BIT)
   RETURNS INTEGER AS $$
 DECLARE
   instertedPersonId    INTEGER;
   insertedCredentialId INTEGER;
 BEGIN
-  INSERT INTO person.Persons(Name, Surname, BirthDate, RecordDate, GenderId)
-  VALUES (name, surname, birthdate, recorddate, genderid)
+  INSERT INTO person.Persons(Name, surname, BirthDate, RecordDate, GenderId)
+  VALUES (name, surname, birthdate, now(), genderid)
   RETURNING Persons.Id
     INTO instertedPersonId;
 
   INSERT INTO person.Credentials(PersonId, RoleId, Email, UserName, Pass, IsUser)
-  VALUES (instertedPersonId,3, email, userName, pasword, 1)
+  VALUES (instertedPersonId,3, email, userName, pasword, isUser)
   RETURNING Credentials.Id
     INTO insertedCredentialId;
 
@@ -254,6 +258,8 @@ EOF
 #brew install postgresql
 
 psql postgres -f ./bookratedb.sql -U $1 $2
+
+rm -r -f bookratedb.sql
 
 ##rm -r -f bookratedb.sql
 
